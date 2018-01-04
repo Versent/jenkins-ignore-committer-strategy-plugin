@@ -12,7 +12,7 @@
 
     <groupId>au.com.versent.jenkins.plugins</groupId>
     <artifactId>ignore-committer-strategy</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
     <packaging>hpi</packaging>
     <name>Ignore Committer Strategy</name>
     <description>This plugin provides addition configuration to prevent multi branch projects from triggering new builds

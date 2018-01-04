@@ -46,124 +46,82 @@ public class IgnoreCommitterStrategyTest {
     @Test
     public void testIsAutomaticBuildReturnsTrueIfAllAuthorsAreNotIgnored() throws Exception {
 
-        GitSCMFileSystem fileSystemMock = Mockito.mock(GitSCMFileSystem.class);
-        GitSCMFileSystem.BuilderImpl builderMock = Mockito.mock(GitSCMFileSystem.BuilderImpl.class);
-        ByteArrayOutputStream ByteArrayOutputStreamMock = Mockito.mock(ByteArrayOutputStream.class);
-
-
-        try {
-            String commits = "";
-            for (String author : nonIgnoredAuthors) {
-                commits += getCommit(author);
-            }
-
-            Mockito.when(ByteArrayOutputStreamMock.toByteArray()).thenReturn(commits.getBytes());
-            Mockito.when(builderMock.build(source, head, currRevision)).thenReturn(fileSystemMock);
-            Mockito.when(fileSystemMock.changesSince(prevRevision, ByteArrayOutputStreamMock)).thenReturn(true);
-
-            PowerMockito.whenNew(ByteArrayOutputStream.class).withNoArguments().thenReturn(ByteArrayOutputStreamMock);
-            PowerMockito.whenNew(GitSCMFileSystem.BuilderImpl.class).withNoArguments().thenReturn(builderMock);
-
-            IgnoreCommitterStrategy IgnoreCommitterStrategy = new IgnoreCommitterStrategy(
-                    String.join(",", ignoredAuthors), false
-            );
-
-            assertTrue(IgnoreCommitterStrategy.isAutomaticBuild(source, head, currRevision, prevRevision));
-        } catch (Exception e) {
-            throw e;
+        String commits = "";
+        for (String author : nonIgnoredAuthors) {
+            commits += getCommit(author);
         }
+
+        assertTrue(setupIgnoreCommitterStrategy(commits));
     }
 
     @Test
     public void testIsAutomaticBuildReturnsTrueIfOneAuthorIsNotIgnoredAndAllowBuildIfNotExcludedAuthor() throws Exception {
 
-        GitSCMFileSystem fileSystemMock = Mockito.mock(GitSCMFileSystem.class);
-        GitSCMFileSystem.BuilderImpl builderMock = Mockito.mock(GitSCMFileSystem.BuilderImpl.class);
-        ByteArrayOutputStream ByteArrayOutputStreamMock = Mockito.mock(ByteArrayOutputStream.class);
-
-
-        try {
-            String commits = "";
-            for (String author : ignoredAuthors) {
-                commits += getCommit(author);
-            }
-            for (String author : nonIgnoredAuthors) {
-                commits += getCommit(author);
-            }
-
-
-            Mockito.when(ByteArrayOutputStreamMock.toByteArray()).thenReturn(commits.getBytes());
-            Mockito.when(builderMock.build(source, head, currRevision)).thenReturn(fileSystemMock);
-            Mockito.when(fileSystemMock.changesSince(prevRevision, ByteArrayOutputStreamMock)).thenReturn(true);
-
-            PowerMockito.whenNew(ByteArrayOutputStream.class).withNoArguments().thenReturn(ByteArrayOutputStreamMock);
-            PowerMockito.whenNew(GitSCMFileSystem.BuilderImpl.class).withNoArguments().thenReturn(builderMock);
-
-            IgnoreCommitterStrategy IgnoreCommitterStrategy = new IgnoreCommitterStrategy(
-                    String.join(",", ignoredAuthors), true
-            );
-
-            assertTrue(IgnoreCommitterStrategy.isAutomaticBuild(source, head, currRevision, prevRevision));
-        } catch (Exception e) {
-            throw e;
+        String commits = "";
+        for (String author : ignoredAuthors) {
+            commits += getCommit(author);
         }
+        for (String author : nonIgnoredAuthors) {
+            commits += getCommit(author);
+        }
+
+        assertTrue(setupIgnoreCommitterStrategy(commits));
     }
 
     @Test
     public void testIsAutomaticBuildReturnsFalseIfAllAuthorsAreIgnoredAndAllowBuildIfNotExcludedAuthor() throws Exception {
 
-        GitSCMFileSystem fileSystemMock = Mockito.mock(GitSCMFileSystem.class);
-        GitSCMFileSystem.BuilderImpl builderMock = Mockito.mock(GitSCMFileSystem.BuilderImpl.class);
-        ByteArrayOutputStream ByteArrayOutputStreamMock = Mockito.mock(ByteArrayOutputStream.class);
-
-
-        try {
-            String commits = "";
-            for (String author : ignoredAuthors) {
-                commits += getCommit(author);
-            }
-
-            Mockito.when(ByteArrayOutputStreamMock.toByteArray()).thenReturn(commits.getBytes());
-            Mockito.when(builderMock.build(source, head, currRevision)).thenReturn(fileSystemMock);
-            Mockito.when(fileSystemMock.changesSince(prevRevision, ByteArrayOutputStreamMock)).thenReturn(true);
-
-            PowerMockito.whenNew(ByteArrayOutputStream.class).withNoArguments().thenReturn(ByteArrayOutputStreamMock);
-            PowerMockito.whenNew(GitSCMFileSystem.BuilderImpl.class).withNoArguments().thenReturn(builderMock);
-
-            IgnoreCommitterStrategy IgnoreCommitterStrategy = new IgnoreCommitterStrategy(
-                    String.join(",", ignoredAuthors), true
-            );
-
-            assertFalse(IgnoreCommitterStrategy.isAutomaticBuild(source, head, currRevision, prevRevision));
-        } catch (Exception e) {
-            throw e;
+        String commits = "";
+        for (String author : ignoredAuthors) {
+            commits += getCommit(author);
         }
+
+        assertFalse(setupIgnoreCommitterStrategy(commits));
     }
 
     @Test
     public void testIsAutomaticBuildReturnsFalseIfOneAuthorIsIgnored() throws Exception {
 
+        String commits = "";
+
+        for (String author : nonIgnoredAuthors) {
+            commits += getCommit(author);
+        }
+
+        for (String author : ignoredAuthors) {
+            commits += getCommit(author);
+        }
+
+        assertFalse(setupIgnoreCommitterStrategy(commits));
+    }
+
+    @Test
+    public void testIsAutomaticBuildReturnsTrueIfCommitCantbeParsed() throws Exception {
+
+        String commits = "";
+
+        for (String author : nonIgnoredAuthors) {
+            commits += getBrokenCommit(author);
+        }
+
+        assertTrue(setupIgnoreCommitterStrategy(commits));
+    }
+
+    private boolean setupIgnoreCommitterStrategy(String commits) throws Exception {
+        // prepare mock GitSCMFileSystem to be returned by builderMock
         GitSCMFileSystem fileSystemMock = Mockito.mock(GitSCMFileSystem.class);
+        // mock builderMock to build a mocked GitSCMFileSystem
         GitSCMFileSystem.BuilderImpl builderMock = Mockito.mock(GitSCMFileSystem.BuilderImpl.class);
+        // mock ByteArrayOutputStream to return preset response
         ByteArrayOutputStream ByteArrayOutputStreamMock = Mockito.mock(ByteArrayOutputStream.class);
 
-
         try {
-            String commits = "";
-
-            for (String author : nonIgnoredAuthors) {
-                commits += getCommit(author);
-            }
-
-            for (String author : ignoredAuthors) {
-                commits += getCommit(author);
-            }
-
-
+            // set returns for mocked methods
             Mockito.when(ByteArrayOutputStreamMock.toByteArray()).thenReturn(commits.getBytes());
             Mockito.when(builderMock.build(source, head, currRevision)).thenReturn(fileSystemMock);
             Mockito.when(fileSystemMock.changesSince(prevRevision, ByteArrayOutputStreamMock)).thenReturn(true);
 
+            // mock classes in the tested target class to return mocked  objects when initiated
             PowerMockito.whenNew(ByteArrayOutputStream.class).withNoArguments().thenReturn(ByteArrayOutputStreamMock);
             PowerMockito.whenNew(GitSCMFileSystem.BuilderImpl.class).withNoArguments().thenReturn(builderMock);
 
@@ -171,7 +129,7 @@ public class IgnoreCommitterStrategyTest {
                     String.join(",", ignoredAuthors), false
             );
 
-            assertFalse(IgnoreCommitterStrategy.isAutomaticBuild(source, head, currRevision, prevRevision));
+            return IgnoreCommitterStrategy.isAutomaticBuild(source, head, currRevision, prevRevision);
         } catch (Exception e) {
             throw e;
         }
@@ -181,6 +139,28 @@ public class IgnoreCommitterStrategyTest {
         List<String> lines = new ArrayList<String>();
         lines.add(String.format("commit %s", "1567861636cd854f4dd6fa40bf94c0c657681dd5"));
         lines.add(String.format("author John Galt<%s> 1363879004 +0100", authorEmail));
+        lines.add("");
+        lines.add("    [task] Updated version.");
+        lines.add("    ");
+        lines.add("    Including earlier updates.");
+        lines.add("    ");
+        lines.add("    Changes in this version:");
+        lines.add("    - Changed to take the gerrit url from gerrit query command.");
+        lines.add("    - Aligned reason information with our new commit hooks");
+        lines.add("    ");
+        lines.add("    Change-Id: Ife96d2abed5b066d9620034bec5f04cf74b8c66d");
+        lines.add("    Reviewed-on: https://gerrit.e.se/12345");
+        lines.add("    Tested-by: Jenkins <jenkins@no-mail.com>");
+        lines.add("    Reviewed-by: Mister Another <mister.another@ericsson.com>");
+
+
+        return String.join("\n", lines);
+    }
+
+    private String getBrokenCommit(String authorEmail) {
+        List<String> lines = new ArrayList<String>();
+        lines.add(String.format("commit %s", "1567861636cd854f4dd6fa40bf94c0c657681dd5"));
+        lines.add(String.format("Authorzzz John Galt<%s> 1363879004 +0100", authorEmail));
         lines.add("");
         lines.add("    [task] Updated version.");
         lines.add("    ");

@@ -69,7 +69,7 @@ public class IgnoreCommitterStrategy extends BranchBuildStrategy {
 
             if (fileSystem == null) {
                 LOGGER.log(Level.SEVERE, "Error retrieving SCMFileSystem");
-                return false;
+                return true;
             }
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -113,7 +113,7 @@ public class IgnoreCommitterStrategy extends BranchBuildStrategy {
             return !allowBuildIfNotExcludedAuthor;
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "Exception", e);
-            return false;
+            return true;
         }
 
     }
