@@ -40,7 +40,7 @@
     <version>1.0.2</version>
     <packaging>hpi</packaging>
     <name>Ignore Committer Strategy</name>
-    <description>This plugin provides addition configuration to prevent multi branch projects from triggering new builds
+    <description>This plugin provides additional configuration to prevent multi branch projects from triggering new builds
         based on a blacklist of commit authors.</description>
     <url>https://github.com/Versent/jenkins-${project.artifactId}-plugin</url>
 
@@ -60,7 +60,7 @@
     </licenses>
     <developers>
         <developer>
-            <id>b-b3rn4rd</id>
+            <id>bb3rn4rd</id>
             <name>Bernard Baltrusaitis</name>
         </developer>
     </developers>
